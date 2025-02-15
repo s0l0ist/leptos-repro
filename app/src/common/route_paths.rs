@@ -1,0 +1,22 @@
+// Static routes
+pub static ABS_ROOT_PATH: &str = "/";
+pub static ABS_AUTH_LOGIN_PATH: &str = "/auth/login";
+pub static ABS_ERROR_PATH: &str = "/error";
+pub static ABS_APP_PATH: &str = "/app";
+pub static ABS_APP_USER_PATH: &str = "/app/user";
+pub static ABS_APP_USER_DETAILS_PATH: &str = "/app/user/:user_id";
+pub static ABS_APP_USERS_PATH: &str = "/app/users";
+pub static ABS_APP_INVITES_PATH: &str = "/app/invites";
+pub static ABS_APP_PROFILE_PATH: &str = "/app/profile";
+pub static ABS_APP_SETTINGS_PATH: &str = "/app/settings";
+pub static ABS_APP_GRAPHS_PATH: &str = "/app/graphs";
+pub static ABS_APP_GRAPHS_NEW_PATH: &str = "/app/graphs/new";
+pub static ABS_APP_GRAPH_PATH: &str = "/app/graph";
+pub static ABS_APP_GRAPH_DETAILS_PATH: &str = "/app/graph/:graph_id";
+pub static ABS_APP_GRAPH_DETAILS_EDIT_PATH: &str = "/app/graph/:graph_id/edit";
+pub static ABS_APP_GRAPH_DETAILS_SETUP_PATH: &str = "/app/graph/:graph_id/setup";
+pub static ABS_APP_GRAPH_DETAILS_CREATE_LINK_PATH: &str = "/app/graph/:graph_id/create_link";
+pub static ABS_APP_GRAPH_DETAILS_LINKS_PATH: &str = "/app/graph/:graph_id/links";
+pub static ABS_APP_LINK_PATH: &str = "/app/link";
+pub static ABS_APP_LINK_DETAILS_PATH: &str = "/app/link/:link_id";
+pub static ABS_APP_LINK_DETAILS_EDIT_PATH: &str = "/app/link/:link_id/edit";

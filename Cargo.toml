@@ -1,0 +1,263 @@
+[workspace]
+resolver = "2"
+members = [
+    "app", 
+    "frontend",
+    "server", 
+]
+
+[profile.wasm-release]
+inherits = "release"
+# We abort because we have no way (at this time) to report errors from panics in
+# WASM. Because we have SSR, we can reproduce most errors by forcing this mode
+# which unwinds and contains debuginfo/symbols. 
+panic = "abort"
+strip = "symbols"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+# We unwind to help ensure we send traces.
+panic = "unwind"
+
+[profile.wasm-debug]
+inherits = "dev"
+
+[profile.dev]
+opt-level = 0
+debug = false
+split-debuginfo = "unpacked"
+strip = "debuginfo"
+
+[workspace.dependencies]
+async-trait = { version = "0.1" }
+aws-config = { version = "1.5", default-features = false, features = [ "behavior-version-latest"] }
+aws-sdk-dynamodb = { version = "1.65", default-features = false }
+aws-sdk-sesv2 = { version = "1.66", default-features = false }
+aws-sdk-s3 = { version = "1.76", default-features = false, features = ["rt-tokio"] }
+aws-smithy-runtime = { version = "1.7", default-features = false, features = ["client", "connector-hyper-0-14-x"] }
+axum = { version = "0.7", features = [ "macros" ] }
+axum-login = { version = "0.16" }
+base64 = { version = "0.22" }
+blake3 = { version = "1.5" }
+bincode = { version = "1.3" }
+console_error_panic_hook = { version = "0.1" }
+console_log = { version = "1.0" }
+dotenvy = { version = "0.15" }
+email_address = { version = "0.2" }
+futures = { version = "0.3" }
+getrandom_02 = { package = "getrandom", version = "0.2" } # NOTE: required for hyper-rustls version that AWS uses
+http = { version = "1.2" }
+hyper_014 = { package ="hyper", version = "0.14" } # NOTE: Must be this version until AWS SDK supports a new version
+hyper-rustls = { version = "0.25", default-features = false, features = ["ring", "http1", "http2", "webpki-tokio", "webpki-roots"] } # NOTE: any higher and it breaks the HyperClientBuilder
+lambda_http = { git = "https://github.com/s0l0ist/aws-lambda-rust-runtime.git", rev = "df9a14196c51073d1d3b453be87ab12677255ec0", features = ["opentelemetry"] }
+lambda_runtime = { git = "https://github.com/s0l0ist/aws-lambda-rust-runtime.git", rev = "df9a14196c51073d1d3b453be87ab12677255ec0", default-features = false, features = ["opentelemetry"] }
+leptos = { git = "https://github.com/leptos-rs/leptos", rev = "a39add50c09c18774a2be60a17344f51a9614df2"}
+leptos_axum = { git = "https://github.com/leptos-rs/leptos", rev = "a39add50c09c18774a2be60a17344f51a9614df2" }
+leptos_meta = { git = "https://github.com/leptos-rs/leptos", rev = "a39add50c09c18774a2be60a17344f51a9614df2" }
+leptos_router = { git = "https://github.com/leptos-rs/leptos", rev = "a39add50c09c18774a2be60a17344f51a9614df2" }
+log = { version = "0.4" }
+lz4_flex = { version = "0.11" }
+opentelemetry = { version = "0.28", default-features = false, features = ["logs", "trace"] }
+opentelemetry-appender-log = { version = "0.28", default-features = false }
+opentelemetry-otlp = { version = "0.28", default-features = false, features = ["gzip-tonic", "grpc-tonic", "logs", "trace", "tls"] }
+opentelemetry-semantic-conventions = { version = "0.28" }
+opentelemetry_sdk = { version = "0.28", default-features = false, features = ["rt-tokio"] }
+password-auth = { version = "1.0" }
+pin-project-lite = { version = "0.2" }
+rand = { version = "0.9" }
+serde = { version = "1.0" }
+serde_dynamo = { version = "4.2", features = ["aws-sdk-dynamodb+1"] }
+serde_json = { version = "1.0" }
+serde_path_to_error = { version = "0.1" }
+serde-xml-rs = { version = "0.6" }
+sitemap = { version = "0.4" }
+thiserror = { version = "2.0" }
+time = { version = "0.3", features = ["macros", "formatting"] }
+tokio = { version = "1.43", features = ["full"] }
+tonic = { version = "0.12", features = ["tls", "tls-webpki-roots"] } #  NOTE: must use tls-webpki-roots because of the Docker "scratch" image that doesn't include any CAs
+tower = { version = "0.5", features = ["full"] }
+tower-http = { version = "0.6", features = ["full"] }
+tower-sessions = { version = "0.13" }
+tracing = { version = "0.1" }
+tracing-opentelemetry = { version = "0.29" }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+urlencoding = { version = "2.1" }
+uuid = { version = "1.13" }
+wasm-bindgen = { version = "0.2" }
+web-sys = { version = "0.3", features = ["DomRect", "Navigator", "Clipboard", "Touch", "TouchEvent", "TouchList", "Blob", "BlobPropertyBag"] }
+
+# See https://github.com/akesson/cargo-leptos for documentation of all the parameters.
+
+# A leptos project defines which workspace members
+# that are used together frontend (lib) & server (bin)
+[[workspace.metadata.leptos]]
+
+### Site parameters
+
+# Sets the name of the output js, wasm and css files.
+#
+# Optional, defaults to the lib package name or, in a workspace, the project name. Env: LEPTOS_OUTPUT_NAME.
+output-name = "repro-app"
+
+# The site root folder is where cargo-leptos generate all output.
+# NOTE: It is relative to the workspace root when running in a workspace.
+# WARNING: all content of this folder will be erased on a rebuild!
+#
+# Optional, defaults to "/site" in the Cargo target directory. Env: LEPTOS_SITE_ROOT.
+site-root = "target/site"
+
+# The site-root relative folder where all compiled output (JS, WASM and CSS) is written.
+#
+# Optional, defaults to "pkg". Env: LEPTOS_SITE_PKG_DIR.
+site-pkg-dir = "pkg"
+
+# The source style file. If it ends with _.sass_ or _.scss_ then it will be compiled by `dart-sass`
+# into CSS and processed by lightning css. When release is set, then it will also be minified.
+#
+# Optional. Env: LEPTOS_STYLE_FILE.
+style-file = "style/output.css"
+
+# The tailwind input file.
+#
+# Optional, Activates the tailwind build
+tailwind-input-file = "style/tailwind.css"
+
+# The tailwind config file.
+#
+# Optional, defaults to "tailwind.config.js" which if is not present
+# is generated for you
+tailwind-config-file = "tailwind.config.js"
+
+# The browserlist https://browsersl.ist query used for optimizing the CSS.
+#
+# Optional, defaults to "defaults". Env: LEPTOS_BROWSERQUERY.
+browserquery = "defaults"
+
+# Assets source dir. All files found here will be copied and synchronized to site-root.
+# The assets-dir cannot have a sub directory with the same name/path as site-pkg-dir.
+#
+# Optional. Env: LEPTOS_ASSETS_DIR.
+assets-dir = "public"
+
+# JS source dir. `wasm-bindgen` has the option to include JS snippets from JS files
+# with `#[wasm_bindgen(module = "/js/foo.js")]`. A change in any JS file in this dir
+# will trigger a rebuild.
+#
+# Optional. Defaults to "src"
+js-dir = "src"
+
+# Additional files your application could depends on.
+# A change to any file in those directories will trigger a rebuild.
+#
+# Optional.
+# watch-additional-files = ["additional_files", "custom_config.json"]
+
+# The IP and port where the server serves the content. Use it in your server setup.
+#
+# Optional, defaults to 127.0.0.1:3000. Env: LEPTOS_SITE_ADDR.
+site-addr = "127.0.0.1:3000"
+
+# The port number used by the reload server (only used in watch mode).
+#
+# Optional, defaults 3001. Env: LEPTOS_RELOAD_PORT
+reload-port = 3001
+
+# The command used for running end-to-end tests. See the section about End-to-end testing.
+#
+# Optional. Env: LEPTOS_END2END_CMD.
+end2end-cmd = "npx playwright test"
+
+# The directory from which the end-to-end tests are run.
+#
+# Optional. Env: LEPTOS_END2END_DIR
+end2end-dir = "end2end"
+
+#### Compilation parameters
+
+name = "repro-app"
+
+# the package in the workspace that contains the server binary (binary crate)
+bin-package = "server"
+
+# the package in the workspace that contains the frontend wasm binary (library crate)
+lib-package = "frontend"
+
+# Enables additional file hashes on outputted css, js, and wasm files
+#
+# Optional: Defaults to false. Can also be set with the LEPTOS_HASH_FILES=false env var (must be set at runtime too)
+hash-files = true
+
+# Sets the name for the file cargo-leptos uses to track the most recent hashes
+#
+# Optional: Defaults to "hash.txt". Can also be set with the LEPTOS_HASH_FILE_NAME="hash.txt" env var
+hash-file-name = "hash.txt"
+
+# The features to use when compiling all targets
+#
+# Optional. Can be extended with the command line parameter --features
+features = []
+
+# The features to use when compiling the bin target
+#
+# Optional. Can be over-ridden with the command line parameter --bin-features
+bin-features = []
+
+# If the --no-default-features flag should be used when compiling the bin target
+#
+# Optional. Defaults to false.
+bin-default-features = false
+
+# The profile to use for the bin target when compiling for release
+#
+# Optional. Defaults to "release".
+# bin-profile-release = "my-release-profile"
+
+# The profile to use for the bin target when compiling for debug
+#
+# Optional. Defaults to "debug".
+# bin-profile-dev = "my-debug-profile"
+
+# The target triple to use when compiling the bin target
+#
+# Optional. Env: LEPTOS_BIN_TARGET_TRIPLE
+# bin-target-triple = "x86_64-unknown-linux-gnu"
+
+# The features to use when compiling the lib target
+#
+# Optional. Can be over-ridden with the command line parameter --lib-features
+lib-features = []
+
+# If the --no-default-features flag should be used when compiling the lib target
+#
+# Optional. Defaults to false.
+lib-default-features = false
+
+# The profile to use for the lib target when compiling for release
+#
+# Optional. Defaults to "release".
+lib-profile-release = "wasm-release"
+
+# The profile to use for the lib target when compiling for debug
+#
+# Optional. Defaults to "debug".
+lib-profile-dev = "wasm-debug"
+
+# Pass additional parameters to the cargo process compiling to WASM
+#
+# Optional. No default
+lib-cargo-args = ["--locked"]
+
+# Pass additional parameters to the cargo process to build the server
+#
+# Optional. No default
+bin-cargo-args = ["--locked"]
+
+# The command to run instead of "cargo" when building the server
+#
+# Optional. No default. Env: LEPTOS_BIN_CARGO_COMMAND
+# bin-cargo-command = "cross"
+
+# The environment Leptos will run in, usually either "DEV" or "PROD"
+env = "DEV"

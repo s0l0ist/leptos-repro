@@ -1,0 +1,19 @@
+[env]
+# Specify the compile-time env variable to prevent vscode from complaining
+LEPTOS_OUTPUT_NAME = "repro-app"
+
+# Workaround for: https://github.com/rust-lang/rust/issues/130729
+# > brew install lld
+[target.aarch64-apple-darwin]
+rustflags = [
+    "-C", "link-arg=-fuse-ld=lld",
+    # Uncomment to speed up local dev
+    "--cfg", "erase_components",
+]
+
+# Configuration for AWS Lambda (Graviton2, musl)
+[target.aarch64-unknown-linux-musl]
+rustflags = [
+    "-C", "target-cpu=neoverse-n1",       # Optimize for Graviton2 and newer
+    "-C", "target-feature=+lse",          # Enable Large-System Extensions (LSE) for better atomic operations
+]

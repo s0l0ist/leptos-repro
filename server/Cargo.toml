@@ -1,0 +1,31 @@
+[package]
+name = "server"
+version = "0.0.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+app = { path = "../app", default-features = false, features = [ "ssr" ] } 
+axum-login.workspace = true
+axum.workspace = true
+dotenvy.workspace = true
+http.workspace = true
+leptos = { workspace = true, features = [ "ssr" ]}
+leptos_axum.workspace = true
+pin-project-lite.workspace = true
+serde.workspace = true
+serde_json = { workspace = true }
+time.workspace = true
+tokio.workspace = true
+tonic.workspace = true
+tower-http.workspace = true
+tower-sessions.workspace = true
+tower.workspace = true
+tracing-opentelemetry.workspace = true
+tracing-subscriber.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+
+[features]
+default = []
